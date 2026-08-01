@@ -1,4 +1,5 @@
 import motor.motor_asyncio
+import time
 from config import Config
 from .utils import send_log
 
@@ -18,7 +19,9 @@ class Sʜᴜꪜᴏ:
             prefix=None,
             suffix=None,
             metadata=False,
-            metadata_code="By :- @Sʜᴜꪜᴏ"
+            metadata_code="By :- @Sʜᴜꪜᴏ",
+            premium_until=None,
+            last_url_download=None
         )
 
     async def add_user(self, b, m):
@@ -122,6 +125,39 @@ class Sʜᴜꪜᴏ:
             e = f'Fᴀɪʟᴇᴅ ᴛᴏ ᴜɴʙᴀɴ.Rᴇᴀsᴏɴ : {e}'
             print(e)
             return e
+
+    #======================= Premium ========================#
+
+    async def add_premium(self, user_id, months):
+        """Extends existing premium if still active, otherwise starts fresh from now."""
+        now = time.time()
+        user = await self.col.find_one({'_id': int(user_id)})
+        current_until = (user or {}).get('premium_until')
+        base = current_until if (current_until and current_until > now) else now
+        new_until = base + (months * 30 * 24 * 60 * 60)
+        await self.col.update_one({'_id': int(user_id)}, {'$set': {'premium_until': new_until}}, upsert=True)
+        return new_until
+
+    async def remove_premium(self, user_id):
+        await self.col.update_one({'_id': int(user_id)}, {'$set': {'premium_until': None}})
+
+    async def is_premium(self, user_id):
+        user = await self.col.find_one({'_id': int(user_id)})
+        until = (user or {}).get('premium_until')
+        return bool(until and until > time.time())
+
+    async def get_premium_until(self, user_id):
+        user = await self.col.find_one({'_id': int(user_id)})
+        return (user or {}).get('premium_until')
+
+    #======================= URL Download Cooldown ========================#
+
+    async def set_last_url_download(self, user_id, ts):
+        await self.col.update_one({'_id': int(user_id)}, {'$set': {'last_url_download': ts}}, upsert=True)
+
+    async def get_last_url_download(self, user_id):
+        user = await self.col.find_one({'_id': int(user_id)})
+        return (user or {}).get('last_url_download')
 
 
 tb = Sʜᴜꪜᴏ(Config.DATABASE_URL, Config.DATABASE_NAME)
