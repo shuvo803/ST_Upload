@@ -29,12 +29,12 @@ class Txt(object):
 
 <blockquote><b>𝘕𝘰𝘵𝘦 :</b> 𝘈𝘥𝘶𝘭𝘵 𝘊𝘰𝘯𝘵𝘦𝘯𝘵 𝘪𝘴 𝘚𝘛𝘙𝘐𝘊𝘛𝘓𝘠 𝘱𝘳𝘰𝘩𝘪𝘣𝘪𝘵𝘦𝘥 𝘉𝘢𝘯 𝘸𝘪𝘭𝘭 𝘣𝘦 𝘱𝘦𝘳𝘮𝘢𝘯𝘦𝘯𝘵.</blockquote>"""
 
-    ABOUT_TXT = """‣ 𝖬𝗒 𝖭𝖺𝗆𝖾 : <a href='https://youtube.com/@techifybots'>𝖹𝗈𝗋𝗈 𝖱𝖾𝗇𝖺𝗆𝖾 𝖡𝗈𝗍</a>
+    ABOUT_TXT = """‣ 𝖬𝗒 𝖭𝖺𝗆𝖾 : <a href='https://youtube.com/Shuvo_Movie'>ST Rename 𝖡𝗈𝗍</a>
 ‣ 𝖫𝗂𝖻𝗋𝖺𝗋𝗒 : <a href='https://docs.pyrogram.org/'>𝖯𝗒𝗋𝗈𝗀𝗋𝖺𝗆</a>
 ‣ 𝖣𝖺𝗍𝖺𝖻𝖺𝗌𝖾 : <a href='https://www.mongodb.com/'>𝖬𝗈𝗇𝗀𝗈𝖣𝖡</a>
 ‣ 𝖫𝖺𝗇𝗀𝗎𝖺𝗀𝖾 : <a href='https://www.python.org/download/releases/3.0/'>𝖯𝗒𝗍𝗁𝗈𝗇 𝟹</a>
-‣ 𝖡𝗈𝗍 𝖲𝖾𝗋𝗏𝖾𝗋 : <a href='https://www.koyeb.com/'>𝖪𝗈𝗒𝖾𝖻</a>
-‣ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖡𝗒 : <a href='https://telegram.me/callownerbot'>𝖱𝖺𝗁𝗎𝗅</a>"""
+‣ 𝖡𝗈𝗍 𝖲𝖾𝗋𝗏𝖾𝗋 : <a href='https://www.koyeb.com/'>Render</a>
+‣ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖡𝗒 : <a href='https://telegram.me/kog_shuvo'>[Sʜᴜꪜᴏ]</a>"""
 
     HELP_TXT = """𝖱𝖾𝗇𝖺𝗆𝖾 𝖡𝗈𝗍 𝖨𝗌 𝖠 𝖧𝖺𝗇𝖽𝗒 𝖳𝗈𝗈𝗅 𝖳𝗁𝖺𝗍 𝖧𝖾𝗅𝗉𝗌 𝖸𝗈𝗎 𝖱𝖾𝗇𝖺𝗆𝖾 𝖠𝗇𝖽 𝖬𝖺𝗇𝖺𝗀𝖾 𝖸𝗈𝗎𝗋 𝖥𝗂𝗅𝖾𝗌 𝖤𝖿𝖿𝗈𝗋𝗍𝗅𝖾𝗌𝗌𝗅𝗒.
 
