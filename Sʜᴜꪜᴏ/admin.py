@@ -116,3 +116,39 @@ async def do_unban(bot,message):
         await text.edit('<b>ᴜsᴇʀ ɪs ɴᴏᴛ ʙᴀɴɴᴇᴅ ʏᴇᴛ.</b>')
     else:
         await text.edit(f"<b>ғᴀɪʟᴇᴅ ᴛᴏ ᴜɴʙᴀɴ.\nʀᴇᴀsᴏɴ : {unban_chk}</b>")
+
+@Client.on_message(filters.command('addpremium') & filters.user(Config.ADMIN))
+async def add_premium(bot,message):
+    parts=message.text.split()
+    if len(parts)!=3 or not parts[1].lstrip('-').isdigit() or not parts[2].isdigit():
+        return await message.reply('<b>ᴜsᴀɢᴇ:</b> <code>/addpremium user_id months</code>\n\nᴇx : <code>/addpremium 123456789 1</code>')
+    user_id=int(parts[1])
+    months=int(parts[2])
+    if months<=0:
+        return await message.reply('<b>Months ᴍᴜsᴛ ʙᴇ ᴀ ᴘᴏsɪᴛɪᴠᴇ ɴᴜᴍʙᴇʀ.</b>')
+    new_until=await tb.add_premium(user_id,months)
+    expiry_str=datetime.datetime.fromtimestamp(new_until).strftime('%Y-%m-%d %H:%M UTC')
+    await message.reply(f"✅ <code>{user_id}</code> ɪs ɴᴏᴡ ᴘʀᴇᴍɪᴜᴍ ꜰᴏʀ {months} ᴍᴏɴᴛʜ(s).\n\n<b>Expires:</b> <code>{expiry_str}</code>")
+    try:
+        await bot.send_message(user_id,f"🎉 **Congratulations!**\n\nYou've been given **Premium** for {months} month(s).\n**Expires:** `{expiry_str}`\n\nPremium users skip the URL-download cooldown.")
+    except Exception:
+        pass
+
+@Client.on_message(filters.command('removepremium') & filters.user(Config.ADMIN))
+async def remove_premium_cmd(bot,message):
+    parts=message.text.split()
+    if len(parts)!=2 or not parts[1].lstrip('-').isdigit():
+        return await message.reply('<b>ᴜsᴀɢᴇ:</b> <code>/removepremium user_id</code>')
+    user_id=int(parts[1])
+    await tb.remove_premium(user_id)
+    await message.reply(f"✅ Premium removed for <code>{user_id}</code>.")
+
+@Client.on_message(filters.private & filters.command('premium'))
+async def check_premium(bot,message):
+    is_prem=await tb.is_premium(message.from_user.id)
+    if is_prem:
+        until=await tb.get_premium_until(message.from_user.id)
+        expiry_str=datetime.datetime.fromtimestamp(until).strftime('%Y-%m-%d %H:%M UTC')
+        await message.reply(f"💎 **You are a Premium user!**\n\n**Expires:** `{expiry_str}`")
+    else:
+        await message.reply("You are not a Premium user yet.\n\nContact the admin to purchase Premium and skip the URL-download cooldown.")
