@@ -121,7 +121,7 @@ async def doc(bot,update):
         except Exception as e:
             return await ms.edit(text=f"Your Caption Error: ({e})")
     else:
-        caption=f"**{new_filename}**\n\n**User:** {user_name}\n**User ID:** {user_id}"
+        caption=f"**{new_filename}**"
     if (media.thumbs or c_thumb):
         if c_thumb:
             ph_path=await bot.download_media(c_thumb)
@@ -145,7 +145,6 @@ async def doc(bot,update):
             sent_message=await bot.send_document(update.message.chat.id,document=metadata_path if _bool_metadata else file_path,thumb=ph_path,caption=caption,progress=progress_for_pyrogram,progress_args=("💠 Uploading...  ⚡",ms,time.time()),reply_markup=close_button)
         elif type=="video":
             sent_message=await bot.send_video(update.message.chat.id,video=metadata_path if _bool_metadata else file_path,caption=caption,thumb=ph_path,duration=duration,progress=progress_for_pyrogram,progress_args=("💠 Uploading...  ⚡",ms,time.time()),reply_markup=close_button)
-        deletion_msg=await sent_message.reply("**🗑 This file will auto-delete in 30 minutes. Save it now!**")
         bin=await bot.copy_message(chat_id=Config.BIN_CHANNEL,from_chat_id=update.message.chat.id,message_id=sent_message.id,reply_markup=close_button)
     except Exception as e:
         os.remove(file_path)
@@ -157,10 +156,3 @@ async def doc(bot,update):
         os.remove(ph_path)
     if file_path:
         os.remove(file_path)
-    await asyncio.sleep(1800)
-    try:
-        await sent_message.delete()
-        await bin.delete()
-        await deletion_msg.delete()
-    except Exception as e:
-        print(f"Error deleting messages after 30 minutes: {e}")
