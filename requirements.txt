@@ -1,0 +1,8 @@
+pyrofork==2.3.68
+tgcrypto
+motor
+dnspython
+hachoir
+pillow
+aiohttp
+pytz

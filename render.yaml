@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: rename-bot-2gb
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: API_ID
+        sync: false
+      - key: API_HASH
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN
+        sync: false
+      - key: LOG_CHANNEL
+        sync: false
+      - key: BIN_CHANNEL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_NAME
+        value: shuvobot
+      - key: IS_FSUB
+        value: "False"
+      - key: AUTH_CHANNELS
+        sync: false
+      - key: AUTH_REQ_CHANNELS
+        sync: false
+      - key: FSUB_EXPIRE
+        value: "2"
+      - key: PICS
+        sync: false
+      - key: WEBHOOK
+        value: "True"
