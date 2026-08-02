@@ -89,7 +89,7 @@ async def doc(bot,update):
     except:
         pass
     try:
-        path=await bot.download_media(message=file,file_name=file_path,progress=progress_for_pyrogram,progress_args=("🚀 Downloading...  ⚡",ms,time.time()))
+        path=await bot.download_media(message=file,file_name=file_path,progress=progress_for_pyrogram,progress_args=("📥 Downloading...  ⚡",ms,time.time()))
     except Exception as e:
         return await ms.edit(e)
     _bool_metadata=await tb.get_metadata(update.message.chat.id)
@@ -139,12 +139,12 @@ async def doc(bot,update):
     except:
         pass
     type=update.data.split("_")[1]
-    close_button=InlineKeyboardMarkup([[InlineKeyboardButton("❌ Close",callback_data="close")]])
+    close_button=InlineKeyboardMarkup([[InlineKeyboardButton("Join Now",url="https://t.me/Bangla_Movie_ST")]])
     try:
         if type=="document":
-            sent_message=await bot.send_document(update.message.chat.id,document=metadata_path if _bool_metadata else file_path,thumb=ph_path,caption=caption,progress=progress_for_pyrogram,progress_args=("💠 Uploading...  ⚡",ms,time.time()),reply_markup=close_button)
+            sent_message=await bot.send_document(update.message.chat.id,document=metadata_path if _bool_metadata else file_path,thumb=ph_path,caption=caption,progress=progress_for_pyrogram,progress_args=("📤 Uploading...  ⚡",ms,time.time()),reply_markup=close_button)
         elif type=="video":
-            sent_message=await bot.send_video(update.message.chat.id,video=metadata_path if _bool_metadata else file_path,caption=caption,thumb=ph_path,duration=duration,progress=progress_for_pyrogram,progress_args=("💠 Uploading...  ⚡",ms,time.time()),reply_markup=close_button)
+            sent_message=await bot.send_video(update.message.chat.id,video=metadata_path if _bool_metadata else file_path,caption=caption,thumb=ph_path,duration=duration,progress=progress_for_pyrogram,progress_args=("📤 Uploading...  ⚡",ms,time.time()),reply_markup=close_button)
         bin=await bot.copy_message(chat_id=Config.BIN_CHANNEL,from_chat_id=update.message.chat.id,message_id=sent_message.id,reply_markup=close_button)
     except Exception as e:
         os.remove(file_path)
