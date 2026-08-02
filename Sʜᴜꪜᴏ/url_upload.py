@@ -285,12 +285,12 @@ async def url_doc(bot, update):
         pass
 
     type_ = update.data.split("_")[1]
-    close_button = InlineKeyboardMarkup([[InlineKeyboardButton("❌ Close", callback_data="close")]])
+    close_button = InlineKeyboardMarkup([[InlineKeyboardButton("Join Now",url="https://t.me/Bangla_Movie_ST")]])
     try:
         if type_ == "document":
-            sent_message = await bot.send_document(update.message.chat.id, document=metadata_path if _bool_metadata else file_path, thumb=ph_path, caption=caption, progress=progress_for_pyrogram, progress_args=("💠 Uploading...  ⚡", ms, time.time()), reply_markup=close_button)
+            sent_message = await bot.send_document(update.message.chat.id, document=metadata_path if _bool_metadata else file_path, thumb=ph_path, caption=caption, progress=progress_for_pyrogram, progress_args=("📤 Uploading...  ⚡", ms, time.time()), reply_markup=close_button)
         elif type_ == "video":
-            sent_message = await bot.send_video(update.message.chat.id, video=metadata_path if _bool_metadata else file_path, caption=caption, thumb=ph_path, duration=duration, progress=progress_for_pyrogram, progress_args=("💠 Uploading...  ⚡", ms, time.time()), reply_markup=close_button)
+            sent_message = await bot.send_video(update.message.chat.id, video=metadata_path if _bool_metadata else file_path, caption=caption, thumb=ph_path, duration=duration, progress=progress_for_pyrogram, progress_args=("📤 Uploading...  ⚡", ms, time.time()), reply_markup=close_button)
         await bot.copy_message(chat_id=Config.BIN_CHANNEL, from_chat_id=update.message.chat.id, message_id=sent_message.id, reply_markup=close_button)
     except Exception as e:
         if os.path.exists(file_path):
