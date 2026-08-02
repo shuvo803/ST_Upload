@@ -17,7 +17,7 @@ async def handle_metadata(bot:Client,message:Message):
         return await message.reply_text(f"**Your Current Metadata :-**\n\n➜ `{user_metadata}` ",quote=True,reply_markup=InlineKeyboardMarkup(ON))
     return await message.reply_text(f"**Your Current Metadata :-**\n\n➜ `{user_metadata}` ",quote=True,reply_markup=InlineKeyboardMarkup(OFF))
 
-@Client.on_callback_query(filters.regex('.*?(custom_metadata|metadata).*?'))
+@Client.on_callback_query(filters.regex('.*?(custom_metadata|metadata).*?'),group=1)
 async def query_metadata(bot:Client,query:CallbackQuery):
     data=query.data
     if data.startswith('metadata_'):
@@ -42,7 +42,7 @@ async def query_metadata(bot:Client,query:CallbackQuery):
         except Exception:
             pass
 
-@Client.on_message(filters.private & filters.reply & filters.text)
+@Client.on_message(filters.private & filters.reply & filters.text,group=1)
 async def metadata_reply(client,message:Message):
     reply_message=message.reply_to_message
     if not (reply_message and reply_message.reply_markup and isinstance(reply_message.reply_markup,ForceReply)):
