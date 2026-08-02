@@ -96,6 +96,24 @@ async def see_prefix(client,message):
     else:
         await m.edit("**You Don't Have Any Prefix ❌**")
 
+@Client.on_message(filters.private & filters.command('setjoin'))
+async def set_join(client,message):
+    m=await message.reply_text("Please Wait ...",quote=True)
+    await tb.set_join_enabled(message.from_user.id,True)
+    await m.edit("**✅ Join Line Enabled!**\n\nEvery renamed file's caption will now include:\n`[Join 👉@Bangla_Movie_ST]`")
+
+@Client.on_message(filters.private & filters.command('deljoin'))
+async def del_join(client,message):
+    m=await message.reply_text("Please Wait ...",quote=True)
+    await tb.set_join_enabled(message.from_user.id,False)
+    await m.edit("**🗑️ Join Line Disabled.**")
+
+@Client.on_message(filters.private & filters.command('seejoin'))
+async def see_join(client,message):
+    m=await message.reply_text("Please Wait ...",quote=True)
+    enabled=await tb.get_join_enabled(message.from_user.id)
+    await m.edit(f"**Join Line :-** `{'Enabled ✅' if enabled else 'Disabled ❌'}`")
+
 @Client.on_message(filters.private & filters.command('setsuffix'))
 async def add_suffix(client,message):
     if len(message.command)==1:
