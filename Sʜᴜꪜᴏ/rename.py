@@ -122,6 +122,8 @@ async def doc(bot,update):
             return await ms.edit(text=f"Your Caption Error: ({e})")
     else:
         caption=f"**{new_filename}**"
+    if await tb.get_join_enabled(update.message.chat.id):
+        caption+="\n\n\n[Join 👉@Bangla_Movie_ST]"
     if (media.thumbs or c_thumb):
         if c_thumb:
             ph_path=await bot.download_media(c_thumb)
