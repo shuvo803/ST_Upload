@@ -3,7 +3,7 @@ from pyrogram.enums import MessageMediaType
 from pyrogram.errors import FloodWait
 from pyrogram.types import InlineKeyboardButton,InlineKeyboardMarkup,ForceReply
 from hachoir.metadata import extractMetadata
-from .ffmpeg import fix_thumb,take_screen_shot,add_metadata
+from .ffmpeg import fix_thumb,take_screen_shot,add_metadata,embed_subtitle
 from hachoir.parser import createParser
 from .utils import progress_for_pyrogram,convert,humanbytes,add_prefix_suffix
 from .database import tb
@@ -89,7 +89,7 @@ async def doc(bot,update):
     except:
         pass
     try:
-        path=await bot.download_media(message=file,file_name=file_path,progress=progress_for_pyrogram,progress_args=("📥 Downloading...  ⚡",ms,time.time()))
+        path=await bot.download_media(message=file,file_name=file_path,progress=progress_for_pyrogram,progress_args=("🚀 Downloading...  ⚡",ms,time.time()))
     except Exception as e:
         return await ms.edit(e)
     _bool_metadata=await tb.get_metadata(update.message.chat.id)
@@ -139,13 +139,36 @@ async def doc(bot,update):
     except:
         pass
     type=update.data.split("_")[1]
+    subtitle_path=None
+    if type=="video":
+        _bool_subtitle=await tb.get_subtitle_enabled(update.message.chat.id)
+        if _bool_subtitle:
+            srt_file_id=await tb.get_subtitle(update.message.chat.id)
+            if srt_file_id:
+                try:
+                    local_srt=await bot.download_media(srt_file_id)
+                    source_for_sub=metadata_path if _bool_metadata else file_path
+                    if not os.path.isdir("Subtitled"):
+                        os.mkdir("Subtitled")
+                    sub_output=f"Subtitled/{new_filename}"
+                    result=await embed_subtitle(source_for_sub,local_srt,sub_output,ms)
+                    if result:
+                        subtitle_path=result
+                    if os.path.exists(local_srt):
+                        os.remove(local_srt)
+                except Exception as e:
+                    print(f"Error embedding subtitle: {e}")
     close_button=InlineKeyboardMarkup([[InlineKeyboardButton("Join Now",url="https://t.me/Bangla_Movie_ST")]])
+    upload_source=subtitle_path if subtitle_path else (metadata_path if _bool_metadata else file_path)
     try:
         if type=="document":
-            sent_message=await bot.send_document(update.message.chat.id,document=metadata_path if _bool_metadata else file_path,thumb=ph_path,caption=caption,progress=progress_for_pyrogram,progress_args=("📤 Uploading...  ⚡",ms,time.time()),reply_markup=close_button)
+            sent_message=await bot.send_document(update.message.chat.id,document=upload_source,thumb=ph_path,caption=caption,progress=progress_for_pyrogram,progress_args=("💠 Uploading...  ⚡",ms,time.time()),reply_markup=close_button)
         elif type=="video":
-            sent_message=await bot.send_video(update.message.chat.id,video=metadata_path if _bool_metadata else file_path,caption=caption,thumb=ph_path,duration=duration,progress=progress_for_pyrogram,progress_args=("📤 Uploading...  ⚡",ms,time.time()),reply_markup=close_button)
-        bin=await bot.copy_message(chat_id=Config.BIN_CHANNEL,from_chat_id=update.message.chat.id,message_id=sent_message.id,reply_markup=close_button)
+            sent_message=await bot.send_video(update.message.chat.id,video=upload_source,caption=caption,thumb=ph_path,duration=duration,progress=progress_for_pyrogram,progress_args=("💠 Uploading...  ⚡",ms,time.time()),reply_markup=close_button)
+        backup_caption=f"**File :-** `{new_filename}`\n**Uploaded By :-** {update.message.chat.first_name} (`{update.message.chat.id}`)"
+        bin=await bot.copy_message(chat_id=Config.BIN_CHANNEL,from_chat_id=update.message.chat.id,message_id=sent_message.id,caption=backup_caption,reply_markup=close_button)
+        await tb.log_backup(update.message.chat.id,bin.id,new_filename)
+        await tb.increment_files_processed(update.message.chat.id)
     except Exception as e:
         os.remove(file_path)
         if ph_path:
@@ -158,5 +181,7 @@ async def doc(bot,update):
     await ms.delete()
     if ph_path:
         os.remove(ph_path)
+    if subtitle_path and os.path.exists(subtitle_path):
+        os.remove(subtitle_path)
     if file_path:
         os.remove(file_path)
