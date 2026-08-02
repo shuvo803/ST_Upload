@@ -26,7 +26,8 @@ class Sʜᴜꪜᴏ:
             subtitle_file_id=None,
             subtitle_enabled=False,
             last_seen=time.time(),
-            files_processed=0
+            files_processed=0,
+            join_enabled=False
         )
 
     async def add_user(self, b, m):
@@ -209,6 +210,15 @@ class Sʜᴜꪜᴏ:
 
     async def get_user_backup_count(self, user_id):
         return await self.backups.count_documents({'user_id': int(user_id)})
+
+    #======================= Join Line Toggle ========================#
+
+    async def set_join_enabled(self, id, bool_val):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'join_enabled': bool_val}}, upsert=True)
+
+    async def get_join_enabled(self, id):
+        user = await self.col.find_one({'_id': int(id)})
+        return (user or {}).get('join_enabled', False)
 
 
 tb = Sʜᴜꪜᴏ(Config.DATABASE_URL, Config.DATABASE_NAME)
