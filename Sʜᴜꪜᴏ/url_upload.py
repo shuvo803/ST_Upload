@@ -168,7 +168,7 @@ async def url_upload_start(client, message):
 # ---------------------------------------------------------------------------
 # Step 2: user replies with the new filename -> ask Document or Video
 # ---------------------------------------------------------------------------
-@Client.on_message(filters.private & filters.reply & filters.text)
+@Client.on_message(filters.private & filters.reply & filters.text,group=2)
 async def url_rename_reply(client, message):
     user_id = message.from_user.id
     pending = PENDING_URLS.get(user_id)
@@ -206,7 +206,7 @@ async def url_rename_reply(client, message):
 # ---------------------------------------------------------------------------
 # Step 3: user picks Document/Video -> download from URL and upload, once
 # ---------------------------------------------------------------------------
-@Client.on_callback_query(filters.regex("^urlget_"))
+@Client.on_callback_query(filters.regex("^urlget_"),group=2)
 async def url_doc(bot, update):
     user_id = update.from_user.id
     pending = PENDING_URLS.pop(user_id, None)
