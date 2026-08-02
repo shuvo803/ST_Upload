@@ -84,3 +84,36 @@ async def add_metadata(input_path, output_path, metadata, ms):
         print(f"Error Occurred While Adding Metadata : {str(e)}")
         await ms.edit("<i>An Error Occurred While Adding Metadata To Your File ❌</i>")
         return None
+
+async def embed_subtitle(video_path, srt_path, output_path, ms):
+    try:
+        await ms.edit("<i>Embedding Subtitle Into Your File ⚡</i>")
+        ext = os.path.splitext(output_path)[1].lower()
+        sub_codec = "mov_text" if ext == ".mp4" else "srt"
+        command = [
+            'ffmpeg', '-y', '-i', video_path, '-i', srt_path,
+            '-map', '0', '-map', '1',
+            '-c:v', 'copy', '-c:a', 'copy', '-c:s', sub_codec,
+            '-metadata:s:s:0', 'language=eng',
+            output_path
+        ]
+        process = await asyncio.create_subprocess_exec(
+            *command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await process.communicate()
+        e_response = stderr.decode().strip()
+        t_response = stdout.decode().strip()
+        print(e_response)
+        print(t_response)
+        if os.path.exists(output_path):
+            await ms.edit("<i>Subtitle Embedded Successfully ✅</i>")
+            return output_path
+        else:
+            await ms.edit("<i>Failed To Embed Subtitle ❌</i>")
+            return None
+    except Exception as e:
+        print(f"Error Occurred While Embedding Subtitle : {str(e)}")
+        await ms.edit("<i>An Error Occurred While Embedding Subtitle ❌</i>")
+        return None
