@@ -151,4 +151,16 @@ async def check_premium(bot,message):
         expiry_str=datetime.datetime.fromtimestamp(until).strftime('%Y-%m-%d %H:%M UTC')
         await message.reply(f"💎 **You are a Premium user!**\n\n**Expires:** `{expiry_str}`")
     else:
-        await message.reply("You are not a Premium user yet.\n\nContact the admin to purchase Premium and skip the URL-download cooldown.")
+        text=(
+            "**You are not a Premium user yet.**\n\n"
+            "💎 **Premium Packages :-**\n\n"
+            "➜ 1 Month — `30Tk`\n"
+            "➜ 2 Month — `50Tk`\n"
+            "➜ 3 Month — `70Tk`\n"
+            "➜ 4 Month — `100Tk`\n"
+            "➜ 5 Month — `130Tk`\n"
+            "➜ 6 Month — `150Tk`\n\n"
+            "Premium users skip the URL-download cooldown. Contact the admin below to purchase."
+        )
+        button=InlineKeyboardMarkup([[InlineKeyboardButton("👤 Admin",url="https://t.me/kog_shuvo")]])
+        await message.reply(text,reply_markup=button)
