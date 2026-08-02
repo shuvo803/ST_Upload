@@ -19,7 +19,7 @@ from .rename import clean_filename, MAX_FILE_SIZE
 from config import Config
 
 URL_REGEX = re.compile(r'^https?://\S+$')
-CHUNK_SIZE = 1024 * 1024  # 1MB
+CHUNK_SIZE = 4 * 1024 * 1024  # 4MB
 COOLDOWN_SECONDS = 5 * 60  # 5 minutes, non-premium users only
 
 # In-memory per-user state between "URL received" -> "filename given" -> "type selected"
