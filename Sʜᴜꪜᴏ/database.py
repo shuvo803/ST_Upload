@@ -10,6 +10,7 @@ class Sʜᴜꪜᴏ:
         self.tb = self._client[database_name]
         self.col = self.tb.user
         self.bannedList = self.tb.bannedList
+        self.backups = self.tb.backups
 
     def new_user(self, id):
         return dict(
@@ -21,7 +22,11 @@ class Sʜᴜꪜᴏ:
             metadata=False,
             metadata_code="By :- @Sʜᴜꪜᴏ",
             premium_until=None,
-            last_url_download=None
+            last_url_download=None,
+            subtitle_file_id=None,
+            subtitle_enabled=False,
+            last_seen=time.time(),
+            files_processed=0
         )
 
     async def add_user(self, b, m):
@@ -158,6 +163,52 @@ class Sʜᴜꪜᴏ:
     async def get_last_url_download(self, user_id):
         user = await self.col.find_one({'_id': int(user_id)})
         return (user or {}).get('last_url_download')
+
+    #======================= Subtitle ========================#
+
+    async def set_subtitle(self, id, file_id):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'subtitle_file_id': file_id, 'subtitle_enabled': True}}, upsert=True)
+
+    async def get_subtitle(self, id):
+        user = await self.col.find_one({'_id': int(id)})
+        return (user or {}).get('subtitle_file_id')
+
+    async def set_subtitle_enabled(self, id, bool_val):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'subtitle_enabled': bool_val}}, upsert=True)
+
+    async def get_subtitle_enabled(self, id):
+        user = await self.col.find_one({'_id': int(id)})
+        return (user or {}).get('subtitle_enabled', False)
+
+    #======================= Stats (last seen / files processed) ========================#
+
+    async def update_last_seen(self, id):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'last_seen': time.time()}}, upsert=True)
+
+    async def get_active_today_count(self):
+        cutoff = time.time() - 86400
+        count = await self.col.count_documents({'last_seen': {'$gte': cutoff}})
+        return count
+
+    async def increment_files_processed(self, id):
+        await self.col.update_one({'_id': int(id)}, {'$inc': {'files_processed': 1}}, upsert=True)
+
+    async def get_total_files_processed(self):
+        cursor = self.col.aggregate([{'$group': {'_id': None, 'total': {'$sum': '$files_processed'}}}])
+        result = await cursor.to_list(length=1)
+        return result[0]['total'] if result else 0
+
+    #======================= Backup Tagging (BIN_CHANNEL, user-wise) ========================#
+
+    async def log_backup(self, user_id, message_id, filename):
+        await self.backups.insert_one({'user_id': int(user_id), 'message_id': message_id, 'filename': filename, 'timestamp': time.time()})
+
+    async def get_user_backups(self, user_id, limit=20):
+        cursor = self.backups.find({'user_id': int(user_id)}).sort('timestamp', -1).limit(limit)
+        return await cursor.to_list(length=limit)
+
+    async def get_user_backup_count(self, user_id):
+        return await self.backups.count_documents({'user_id': int(user_id)})
 
 
 tb = Sʜᴜꪜᴏ(Config.DATABASE_URL, Config.DATABASE_NAME)
