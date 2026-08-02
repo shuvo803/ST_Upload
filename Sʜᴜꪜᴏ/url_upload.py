@@ -268,7 +268,7 @@ async def url_doc(bot, update):
     else:
         caption = f"**{new_filename}**"
     if await tb.get_join_enabled(user_id):
-        caption += "\n\n\n[Join 👉@Bangla_Movie_ST]"
+        caption += "\n\n\n**[Join 👉@Bangla_Movie_ST]**"
 
     if c_thumb:
         ph_path = await bot.download_media(c_thumb)
