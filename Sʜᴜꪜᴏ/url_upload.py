@@ -79,10 +79,10 @@ async def url_progress(current, total, ud_type, message, start):
               "".join(["▢" for _ in range(20 - math.floor(percentage / 5))])
         text = (
             f"{ud_type}\n\n{bar}\n\n"
-            f"**Progress:** {round(percentage, 2)}%\n"
-            f"**Done:** {humanbytes(current)} / {humanbytes(total) if total else 'Unknown'}\n"
-            f"**Speed:** {humanbytes(speed)}/s\n"
-            f"**ETA:** {eta}"
+            f"**♻️Progress:** {round(percentage, 2)}%\n"
+            f"**⏳Done:** {humanbytes(current)} / {humanbytes(total) if total else 'Unknown'}\n"
+            f"**🚀Speed:** {humanbytes(speed)}/s\n"
+            f"**⏰ETA:** {eta}"
         )
         try:
             await message.edit(text)
@@ -291,7 +291,9 @@ async def url_doc(bot, update):
             sent_message = await bot.send_document(update.message.chat.id, document=metadata_path if _bool_metadata else file_path, thumb=ph_path, caption=caption, progress=progress_for_pyrogram, progress_args=("📤 Uploading...  ⚡", ms, time.time()), reply_markup=close_button)
         elif type_ == "video":
             sent_message = await bot.send_video(update.message.chat.id, video=metadata_path if _bool_metadata else file_path, caption=caption, thumb=ph_path, duration=duration, progress=progress_for_pyrogram, progress_args=("📤 Uploading...  ⚡", ms, time.time()), reply_markup=close_button)
-        await bot.copy_message(chat_id=Config.BIN_CHANNEL, from_chat_id=update.message.chat.id, message_id=sent_message.id, reply_markup=close_button)
+        await bot.copy_message(chat_id=Config.BIN_CHANNEL, from_chat_id=update.message.chat.id, message_id=sent_message.id, caption=f"**File :-** `{new_filename}`\n**Uploaded By :-** {update.message.chat.first_name} (`{update.message.chat.id}`)", reply_markup=close_button)
+        await tb.log_backup(user_id, sent_message.id, new_filename)
+        await tb.increment_files_processed(user_id)
     except Exception as e:
         if os.path.exists(file_path):
             os.remove(file_path)
