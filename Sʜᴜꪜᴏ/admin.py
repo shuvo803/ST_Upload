@@ -8,15 +8,17 @@ from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, Peer
 logger=logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-@Client.on_message(filters.command("status") & filters.user(Config.ADMIN))
+@Client.on_message(filters.command(["status","stats"]) & filters.user(Config.ADMIN))
 async def get_stats(bot,message):
     total_users=await tb.total_users_count()
+    active_today=await tb.get_active_today_count()
+    total_files=await tb.get_total_files_processed()
     uptime=time.strftime("%Hh%Mm%Ss",time.gmtime(time.time()-bot.uptime))
     start_t=time.time()
     st=await message.reply('**Processing The Details.....**',quote=True)
     end_t=time.time()
     time_taken_s=(end_t-start_t)*1000
-    await st.edit(text=f"**--Bot Stats--** \n\n**⌚ Bot Uptime:** `{uptime}` \n**🐌 Current Ping:** `{time_taken_s:.3f} ms` \n**👭 Total Users:** `{total_users}`")
+    await st.edit(text=f"**--Bot Stats--** \n\n**⌚ Bot Uptime:** `{uptime}` \n**🐌 Current Ping:** `{time_taken_s:.3f} ms` \n**👭 Total Users:** `{total_users}` \n**🟢 Active Today:** `{active_today}` \n**📁 Files Processed:** `{total_files}`")
 
 @Client.on_message(filters.command("restart") & filters.user(Config.ADMIN))
 async def restart_bot(bot,message):
@@ -42,41 +44,62 @@ async def broadcast_handler(bot:Client,m:Message):
     done=0
     failed=0
     success=0
+    blocked=0
+    deactivated=0
+    invalid=0
+    other_errors=0
     start_time=time.time()
     total_users=await tb.total_users_count()
     async for user in all_users:
-        sts=await send_msg(user['_id'],broadcast_msg)
+        sts,reason=await send_msg(user['_id'],broadcast_msg)
         if sts==200:
             success+=1
         else:
             failed+=1
+            if reason=="blocked":
+                blocked+=1
+            elif reason=="deactivated":
+                deactivated+=1
+            elif reason=="invalid":
+                invalid+=1
+            else:
+                other_errors+=1
         if sts==400:
             await tb.delete_user(user['_id'])
         done+=1
         if not done%20:
-            await sts_msg.edit(f"**Broadcast In Progress:** \n\nTotal Users {total_users} \nCompleted: {done} / {total_users}\nSuccess: {success}\nFailed: {failed}")
+            await sts_msg.edit(f"**Broadcast In Progress:** \n\nTotal Users {total_users} \nCompleted: {done} / {total_users}\nReceived: {success}\nFailed: {failed}")
     completed_in=datetime.timedelta(seconds=int(time.time()-start_time))
-    await sts_msg.edit(f"**Broadcast Completed:** \n\nCompleted In `{completed_in}`.\n\nTotal Users {total_users}\nCompleted: {done} / {total_users}\nSuccess: {success}\nFailed: {failed}")
+    await sts_msg.edit(
+        f"**Broadcast Completed:** \n\n"
+        f"Completed In `{completed_in}`.\n\n"
+        f"**Total Users:** {total_users}\n"
+        f"**Received (Success):** {success}\n"
+        f"**Failed:** {failed}\n"
+        f"　┣ 🚫 Blocked The Bot: {blocked}\n"
+        f"　┣ 👻 Account Deactivated: {deactivated}\n"
+        f"　┗ ⚠️ Invalid/Other Error: {invalid+other_errors}"
+    )
 
 async def send_msg(user_id,message):
     try:
         await message.copy(chat_id=int(user_id))
-        return 200
+        return 200,None
     except FloodWait as e:
         await asyncio.sleep(e.value)
-        return send_msg(user_id,message)
+        return await send_msg(user_id,message)
     except InputUserDeactivated:
         logger.info(f"{user_id} : Deactivated")
-        return 400
+        return 400,"deactivated"
     except UserIsBlocked:
         logger.info(f"{user_id} : Blocked The Bot")
-        return 400
+        return 400,"blocked"
     except PeerIdInvalid:
         logger.info(f"{user_id} : User ID Invalid")
-        return 400
+        return 400,"invalid"
     except Exception as e:
         logger.error(f"{user_id} : {e}")
-        return 500
+        return 500,str(e)
 
 @Client.on_message(filters.command("banned") & filters.user(Config.ADMIN))
 async def banned_users(client,message):
@@ -164,3 +187,21 @@ async def check_premium(bot,message):
         )
         button=InlineKeyboardMarkup([[InlineKeyboardButton("👤 Admin",url="https://t.me/kog_shuvo")]])
         await message.reply(text,reply_markup=button)
+
+@Client.on_message(filters.command('userfiles') & filters.user(Config.ADMIN))
+async def user_files(bot,message):
+    parts=message.text.split()
+    if len(parts)!=2 or not parts[1].lstrip('-').isdigit():
+        return await message.reply('<b>ᴜsᴀɢᴇ:</b> <code>/userfiles user_id</code>')
+    user_id=int(parts[1])
+    total=await tb.get_user_backup_count(user_id)
+    if total==0:
+        return await message.reply(f"No backed-up files found for <code>{user_id}</code>.")
+    files=await tb.get_user_backups(user_id,limit=20)
+    text=f"**📁 Files by** <code>{user_id}</code> **(Total: {total}, showing latest {len(files)}):**\n\n"
+    for f in files:
+        ts=datetime.datetime.fromtimestamp(f['timestamp']).strftime('%Y-%m-%d %H:%M')
+        text+=f"➜ `{f['filename']}` — `{ts}`\n"
+    if len(text)<=4000:
+        return await message.reply(text)
+    await bot.send_document(message.chat.id,text.encode(),file_name=f"{user_id}_files.txt")
