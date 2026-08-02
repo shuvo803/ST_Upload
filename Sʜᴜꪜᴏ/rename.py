@@ -151,6 +151,10 @@ async def doc(bot,update):
         if ph_path:
             os.remove(ph_path)
         return await ms.edit(f"**Error:** `{e}`")
+    try:
+        await file.delete()
+    except Exception as e:
+        print(f"Error deleting original file message: {e}")
     await ms.delete()
     if ph_path:
         os.remove(ph_path)
