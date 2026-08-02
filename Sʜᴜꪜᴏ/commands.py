@@ -123,7 +123,7 @@ async def see_suffix(client,message):
     else:
         await m.edit("**You Don't Have Any Suffix ❌**")
 
-@Client.on_callback_query()
+@Client.on_callback_query(group=3)
 async def cb_handler(client, query: CallbackQuery):
     data = query.data 
 
