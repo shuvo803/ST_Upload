@@ -29,6 +29,7 @@ class Bot(Client):
             api_hash=Config.API_HASH,
             bot_token=Config.BOT_TOKEN,
             workers=200,
+            max_concurrent_transmissions=6,
             plugins={"root": "Sʜᴜꪜᴏ"},
             sleep_threshold=15,
         )
@@ -53,10 +54,10 @@ class Bot(Client):
         
         if Config.LOG_CHANNEL:
             try:
-                curr = datetime.now(timezone("Asia/Kolkata"))
+                curr = datetime.now(timezone("Asia/Dhaka"))
                 date = curr.strftime('%d %B, %Y')
                 time = curr.strftime('%I:%M:%S %p')
-                await self.send_message(Config.LOG_CHANNEL, f"**{me.mention} Is Restarted !!**\n\n📅 Date : `{date}`\n⏰ Time : `{time}`\n🌐 Timezone : `Asia/Kolkata`\n\n🉐 Version : `v{__version__} (Layer {layer})`</b>")                                
+                await self.send_message(Config.LOG_CHANNEL, f"**{me.mention} Is Restarted !!**\n\n📅 Date : `{date}`\n⏰ Time : `{time}`\n🌐 Timezone : `Asia/Dhaka`\n\n🉐 Version : `v{__version__} (Layer {layer})`</b>")                                
             except Exception as e:
                 print(f"Error sending message to LOG_CHANNEL: {e}")
 
