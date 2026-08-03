@@ -12,6 +12,8 @@ async def start(client, message):
     button = InlineKeyboardMarkup([
         [InlineKeyboardButton('ℹ️ 𝖠𝖻𝗈𝗎𝗍', callback_data='about'),
          InlineKeyboardButton('🔰 𝖧𝗈𝗐 𝖳𝗈 𝖴𝗌𝖾', callback_data='help')],
+        [InlineKeyboardButton('📢 𝖴𝗉𝖽𝖺𝗍𝖾𝗌', url='https://t.me/Shuvo_Movie'),
+         InlineKeyboardButton('💬 𝖲𝗎𝗉𝗉𝗈𝗋𝗍', url='https://t.me/MovieChatGruop')],
         [InlineKeyboardButton('👨‍💻 𝖣𝖾𝗏𝖾𝗅𝗈𝗉𝖾𝗋', user_id=int(Config.ADMIN))]
     ])
     await message.reply_photo(
@@ -154,6 +156,8 @@ async def cb_handler(client, query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton('ℹ️ 𝖠𝖻𝗈𝗎𝗍', callback_data='about'),
                  InlineKeyboardButton('🔰 𝖧𝗈𝗐 𝖳𝗈 𝖴𝗌𝖾', callback_data='help')],
+                [InlineKeyboardButton('📢 𝖴𝗉𝖽𝖺𝗍𝖾𝗌', url='https://t.me/Shuvo_Movie'),
+                 InlineKeyboardButton('💬 𝖲𝗎𝗉𝗉𝗈𝗋𝗍', url='https://t.me/MovieChatGruop')],
                 [InlineKeyboardButton('👨‍💻 𝖣𝖾𝗏𝖾𝗅𝗈𝗉𝖾𝗋', user_id=int(Config.ADMIN))]
             ])
         )
@@ -254,8 +258,7 @@ async def cb_handler(client, query: CallbackQuery):
                 caption=Txt.ABOUT_TXT
             ),
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("💻 𝖱𝖾𝗉𝗈", url="https://github.com/Sʜᴜꪜᴏ/Rename-Bot-2GB"),
-                 InlineKeyboardButton("💖 𝖣𝗈𝗇𝖺𝗍𝖾", callback_data="donate")],
+                [InlineKeyboardButton("💖 𝖣𝗈𝗇𝖺𝗍𝖾", callback_data="donate")],
                 [InlineKeyboardButton("🏠 𝖧𝗈𝗆𝖾", callback_data="start")]
             ])
         )
