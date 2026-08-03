@@ -23,23 +23,23 @@ class Config(object):
 
 
 class Txt(object):
-    START_TXT = """{},
+    START_TXT = """ʜᴇʏ {}!✨
 
-🫧 ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴅᴠᴀɴᴄᴇᴅ ʀᴇɴᴀᴍᴇ ʙᴏᴛ!
-ᴡʜɪᴄʜ ᴄᴀɴ ᴍᴀɴᴜᴀʟʟʏ ʀᴇɴᴀᴍᴇ ʏᴏᴜʀ ғɪʟᴇs ᴡɪᴛʜ ᴄᴜsᴛᴏᴍ ᴄᴀᴘᴛɪᴏɴ ᴀɴᴅ ᴛʜᴜᴍʙɴᴀɪʟ ᴀɴᴅ ᴀʟsᴏ ᴄᴀɴ sᴇᴛ ᴘʀᴇғɪx ᴀɴᴅ sᴜғғɪx ᴏɴ ʏᴏᴜʀ ғɪʟᴇs.⚡️
+🫧 <b>ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ᴀᴅᴠᴀɴᴄᴇᴅ ʀᴇɴᴀᴍᴇ & ᴜʀʟ ᴜᴘʟᴏᴀᴅᴇʀ ʙᴏᴛ!
+ᴡʜɪᴄʜ ᴄᴀɴ ᴍᴀɴᴜᴀʟʟʏ ʀᴇɴᴀᴍᴇ ʏᴏᴜʀ ғɪʟᴇs ᴡɪᴛʜ ᴄᴜsᴛᴏᴍ ᴄᴀᴘᴛɪᴏɴ ᴀɴᴅ ᴛʜᴜᴍʙɴᴀɪʟ ᴀɴᴅ ᴀʟsᴏ ᴄᴀɴ sᴇᴛ ᴘʀᴇғɪx ᴀɴᴅ sᴜғғɪx ᴏɴ ʏᴏᴜʀ ғɪʟᴇs.⚡️</b>
 
 <blockquote><b>✨ <b>ᴛʜɪs ʙᴏᴛ ɪs ᴅᴇᴘʟᴏʏᴇᴅ ʙʏ <a href='https://t.me/kog_shuvo'>[Sʜᴜꪜᴏ]</a></b> </blockquote>
 ──────────────────
 ๏ <b>ᴄʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʜᴏᴡ ᴛᴏ ᴜsᴇ ʙᴜᴛᴛᴏɴ ᴛᴏ ɢᴇᴛ ɪɴғᴏʀᴍᴀᴛɪᴏɴ ᴀʙᴏᴜᴛ ᴍʏ ᴄᴏᴍᴍᴀɴᴅs.</b>"""
 
-    ABOUT_TXT = """‣ 𝖬𝗒 𝖭𝖺𝗆𝖾 : <a href='https://youtube.com/@techifybots'>𝖹𝗈𝗋𝗈 𝖱𝖾𝗇𝖺𝗆𝖾 𝖡𝗈𝗍</a>
+    ABOUT_TXT = """‣ 𝖬𝗒 𝖭𝖺𝗆𝖾 : <a href='https://t.me/URL_UPLOADER_TS_bot'>sᴛ ʀᴇɴᴀᴍᴇ ʙᴏᴛ</a>
 ‣ 𝖫𝗂𝖻𝗋𝖺𝗋𝗒 : <a href='https://docs.pyrogram.org/'>𝖯𝗒𝗋𝗈𝗀𝗋𝖺𝗆</a>
 ‣ 𝖣𝖺𝗍𝖺𝖻𝖺𝗌𝖾 : <a href='https://www.mongodb.com/'>𝖬𝗈𝗇𝗀𝗈𝖣𝖡</a>
 ‣ 𝖫𝖺𝗇𝗀𝗎𝖺𝗀𝖾 : <a href='https://www.python.org/download/releases/3.0/'>𝖯𝗒𝗍𝗁𝗈𝗇 𝟹</a>
-‣ 𝖡𝗈𝗍 𝖲𝖾𝗋𝗏𝖾𝗋 : <a href='https://www.koyeb.com/'>𝖪𝗈𝗒𝖾𝖻</a>
-‣ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖡𝗒 : <a href='https://telegram.me/callownerbot'>𝖱𝖺𝗁𝗎𝗅</a>"""
+‣ 𝖡𝗈𝗍 𝖲𝖾𝗋𝗏𝖾𝗋 : <a href='https://www.render.com/'>ʀᴇɴᴅᴇʀ</a>
+‣ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖡𝗒 : <a href='https://telegram.me/kog_shuvo'>[Sʜᴜꪜᴏ]</a>"""
 
-    HELP_TXT = """𝖲ʜᴜᴠᴏ 𝖱ᴇɴᴀᴍᴇ 𝖡ᴏᴛ 𝖨𝗌 𝖠 𝖵𝖾𝗋𝗒 𝖧𝖺𝗇𝖽𝗒 𝖠𝗇𝖽 𝖧𝖾𝗅𝗉𝖿𝗎𝗅 𝖡𝗈𝗍 𝖳𝗁𝖺𝗍 𝖧𝖾𝗅𝗉𝗌 𝖸𝗈𝗎 𝖱𝖾𝗇𝖺𝗆𝖾 𝖠𝗇𝖽 𝖬𝖺𝗇𝖺𝗀𝖾 𝖸𝗈𝗎𝗋 𝖥𝗂𝗅𝖾𝗌 𝖤𝖿𝖿𝗈𝗋𝗍𝗅𝖾𝗌𝗌𝗅𝗒.
+    HELP_TXT = """<b>𝖲ʜᴜᴠᴏ 𝖱ᴇɴᴀᴍᴇ 𝖡ᴏᴛ Is A Vᴇʀʏ Hᴀɴᴅʏ Aɴᴅ Hᴇʟᴘғᴜʟ Bᴏᴛ Tʜᴀᴛ Hᴇʟᴘs Yᴏᴜ Rᴇɴᴀᴍᴇ Aɴᴅ Mᴀɴᴀɢᴇ Yᴏᴜʀ Fɪʟᴇs Eғғᴏʀᴛʟᴇssʟʏ.</b>
 
 <u><b>𝖨𝗆𝗉𝗈𝗋𝗍𝖺𝗇𝗍 𝖥𝖾𝖺𝗍𝗎𝗋𝖾𝗌 :</b></u>
 ↬ 𝖢𝖺𝗇 𝗋𝖾𝗇𝖺𝗆𝖾 𝖺𝗇𝗒 𝖿𝗂𝗅𝖾𝗌 (𝖽𝗈𝖼𝗎𝗆𝖾𝗇𝗍/𝗏𝗂𝖽𝖾𝗈).
@@ -52,7 +52,7 @@ class Txt(object):
 
 ➻ 𝖢𝗅𝗂𝖼𝗄 𝖮𝗇 𝖳𝗁𝖾 𝖡𝗎𝗍𝗍𝗈𝗇𝗌 𝖦𝗂𝗏𝖾𝗇 𝖡𝖾𝗅𝗈𝗐 𝖥𝗈𝗋 𝖦𝖾𝗍𝗍𝗂𝗇𝗀 𝖬𝗈𝗋𝖾 𝖨𝗇𝖿𝗈."""
 
-    THUMBNAIL_TXT = """<blockquote>🖼 𝖳𝗈 𝖲𝖾𝗍 𝖢𝗎𝗌𝗍𝗈𝗆 𝖳𝗁𝗎𝗆𝖻𝗇𝖺𝗂𝗅</blockquote>
+    THUMBNAIL_TXT ssʟʏ."<blockquote>🖼 𝖳𝗈 𝖲𝖾𝗍 𝖢𝗎𝗌𝗍𝗈𝗆 𝖳𝗁𝗎𝗆𝖻𝗇𝖺𝗂𝗅</blockquote>
 
 ➲ 𝖲𝖾𝗇𝖽 𝖠𝗇𝗒 𝖯𝗁𝗈𝗍𝗈 𝖳𝗈 𝖠𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝖼𝖺𝗅𝗅𝗒 𝖲𝖾𝗍 𝖨𝗍 𝖠𝗌 𝖠 𝖳𝗁𝗎𝗆𝖻𝗇𝖺𝗂𝗅.  
 ➲ /delthumb: 𝖴𝗌𝖾 𝖳𝗁𝗂𝗌 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 𝖳𝗈 𝖣𝖾𝗅𝖾𝗍𝖾 𝖸𝗈𝗎𝗋 𝖳𝗁𝗎𝗆𝖻𝗇𝖺𝗂𝗅.  
