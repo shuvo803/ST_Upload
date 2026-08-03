@@ -11,7 +11,7 @@ async def start(client, message):
     await tb.add_user(client, message)
     button = InlineKeyboardMarkup([
         [InlineKeyboardButton('ℹ️ 𝖠𝖻𝗈𝗎𝗍', callback_data='about'),
-         InlineKeyboardButton('📚 𝖧𝖾𝗅𝗉', callback_data='help')],
+         InlineKeyboardButton('🔰 𝖧𝗈𝗐 𝖳𝗈 𝖴𝗌𝖾', callback_data='help')],
         [InlineKeyboardButton('👨‍💻 𝖣𝖾𝗏𝖾𝗅𝗈𝗉𝖾𝗋', user_id=int(Config.ADMIN))]
     ])
     await message.reply_photo(
@@ -153,7 +153,7 @@ async def cb_handler(client, query: CallbackQuery):
             ),
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton('ℹ️ 𝖠𝖻𝗈𝗎𝗍', callback_data='about'),
-                 InlineKeyboardButton('📚 𝖧𝖾𝗅𝗉', callback_data='help')],
+                 InlineKeyboardButton('🔰 𝖧𝗈𝗐 𝖳𝗈 𝖴𝗌𝖾', callback_data='help')],
                 [InlineKeyboardButton('👨‍💻 𝖣𝖾𝗏𝖾𝗅𝗈𝗉𝖾𝗋', user_id=int(Config.ADMIN))]
             ])
         )
@@ -170,6 +170,7 @@ async def cb_handler(client, query: CallbackQuery):
                  InlineKeyboardButton("🔤 𝖲𝗎𝖿𝖿𝗂𝗑", callback_data="suffix")],
                 [InlineKeyboardButton("📝 𝖢𝖺𝗉𝗍𝗂𝗈𝗇", callback_data="caption"),
                  InlineKeyboardButton("🖼️ 𝖳𝗁𝗎𝗆𝖻𝗇𝖺𝗂𝗅", callback_data="thumbnail")],
+                [InlineKeyboardButton("🎬 𝖲𝗎𝖻𝗍𝗂𝗍𝗅𝖾", callback_data="srt_help")],
                 [InlineKeyboardButton("🏠 𝖧𝗈𝗆𝖾", callback_data="start")]
             ])
         )
@@ -227,6 +228,18 @@ async def cb_handler(client, query: CallbackQuery):
             media=InputMediaPhoto(
                 random.choice(Config.PICS),
                 caption=Txt.THUMBNAIL_TXT
+            ),
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 𝖡𝖺𝖼𝗄", callback_data="help"),
+                 InlineKeyboardButton("❌ 𝖢𝗅𝗈𝗌𝖾", callback_data="close")]
+            ])
+        )
+
+    elif data == "srt_help":
+        await query.message.edit_media(
+            media=InputMediaPhoto(
+                random.choice(Config.PICS),
+                caption=Txt.SUBTITLE_TXT
             ),
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("🔙 𝖡𝖺𝖼𝗄", callback_data="help"),
