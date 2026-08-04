@@ -6,3 +6,4 @@ hachoir
 pillow
 aiohttp
 pytz
+yt-dlp
