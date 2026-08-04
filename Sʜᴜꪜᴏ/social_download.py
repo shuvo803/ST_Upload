@@ -15,9 +15,9 @@ from .rename import clean_filename, MAX_FILE_SIZE
 from config import Config
 
 YOUTUBE_REGEX = re.compile(r'^https?://(www\.|m\.)?(youtube\.com|youtu\.be)/\S+$', re.IGNORECASE)
-FB_TIKTOK_REGEX = re.compile(r'^https?://(www\.|m\.|vm\.)?(facebook\.com|fb\.watch|tiktok\.com)/\S+$', re.IGNORECASE)
+FB_TIKTOK_REGEX = re.compile(r'^https?://(www\.|m\.|vm\.|vt\.)?(facebook\.com|fb\.watch|tiktok\.com)/\S+$', re.IGNORECASE)
 PLATFORM_REGEX = re.compile(
-    r'^https?://(www\.|m\.|vm\.)?(youtube\.com|youtu\.be|facebook\.com|fb\.watch|tiktok\.com)/\S+$',
+    r'^https?://(www\.|m\.|vm\.|vt\.)?(youtube\.com|youtu\.be|facebook\.com|fb\.watch|tiktok\.com)/\S+$',
     re.IGNORECASE
 )
 COOLDOWN_SECONDS = 5 * 60  # shared with url_upload.py's cooldown (same DB fields)
