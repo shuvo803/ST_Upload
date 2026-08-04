@@ -27,6 +27,20 @@ async def restart_bot(bot,message):
     await msg.edit("✅️ Bot Is Restarted. Now You Can Use Me")
     os.execl(sys.executable,sys.executable,*sys.argv)
 
+@Client.on_message(filters.command("getid") & filters.user(Config.ADMIN))
+async def get_file_id(bot, message):
+    reply = message.reply_to_message
+    if not reply or not (reply.photo or reply.video or reply.document or reply.audio):
+        return await message.reply_text(
+            "**যেকোনো ছবি/ভিডিও/ফাইলে রিপ্লাই করে `/getid` লিখুন।**",
+            quote=True
+        )
+    media = reply.photo or reply.video or reply.document or reply.audio
+    await message.reply_text(
+        f"**File ID:**\n`{media.file_id}`",
+        quote=True
+    )
+
 @Client.on_message(filters.private & filters.command("ping"))
 async def ping(_,message):
     start_t=time.time()
