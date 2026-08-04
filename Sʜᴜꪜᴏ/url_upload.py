@@ -110,10 +110,12 @@ async def download_url_to_path(url, file_path, status_msg):
                     await url_progress(downloaded, total_size, "🚀 Downloading From URL...  ⚡", status_msg, start)
 
 
+PLATFORM_REGEX = re.compile(r'(youtube\.com|youtu\.be|facebook\.com|fb\.watch|tiktok\.com)', re.IGNORECASE)
+
 # ---------------------------------------------------------------------------
 # Step 1: user sends a URL -> validate it, then ask for the new filename
 # ---------------------------------------------------------------------------
-@Client.on_message(filters.private & filters.text & filters.regex(r'^https?://\S+$') & ~filters.reply)
+@Client.on_message(filters.private & filters.text & filters.regex(r'^https?://\S+$') & ~filters.reply & ~filters.regex(PLATFORM_REGEX))
 async def url_upload_start(client, message):
     user_id = message.from_user.id
 
