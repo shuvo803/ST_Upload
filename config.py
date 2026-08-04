@@ -8,7 +8,7 @@ class Config(object):
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
     DATABASE_NAME = os.environ.get("DATABASE_NAME","shuvobot")     
     DATABASE_URL = os.environ.get("DATABASE_URL","")
-    PICS = (os.environ.get("PICS", "https://i.ibb.co/MDssddJp/pic.jpg https://i.ibb.co/n8fQ2xcx/pic.jpg")).split()
+    PICS = (os.environ.get("PICS", "https://i.ibb.co.com/WW33G4VH/20260804-054313.jpg")).split()
     ADMIN = int(os.environ.get("ADMIN", "0"))
     IS_FSUB = os.environ.get("IS_FSUB", "False").lower() == "true"  # Set "True" For Enable Force Subscribe
     AUTH_CHANNELS = list(map(int, os.environ.get("AUTH_CHANNELS", "").split())) if os.environ.get("AUTH_CHANNELS") else [] # Add Multiple channel ids
