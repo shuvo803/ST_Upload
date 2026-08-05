@@ -66,19 +66,22 @@ def convert(seconds):
     return "%d:%02d:%02d" % (hour, minutes, seconds)
 
 async def send_log(b, u):
-    if Config.LOG_CHANNEL is not None:
-        bot_user = await b.get_me()
-        await b.send_message(
-            Config.LOG_CHANNEL,
-            f"<b><u>New User Started The Bot :</u></b> \n\n"
-            f"<b>User Mention</b> : {u.mention}\n"
-            f"<b>User ID</b> : `{u.id}`\n"
-            f"<b>First Name</b> : {u.first_name}\n"
-            f"<b>Last Name</b> : {u.last_name}\n"
-            f"<b>User Name</b> : @{u.username}\n"
-            f"<b>User Link</b> : <a href='tg://openmessage?user_id={u.id}'>Click Here</a>\n\n"
-            f"<b>By</b> : @{bot_user.username}"
-        )
+    if Config.LOG_CHANNEL:
+        try:
+            bot_user = await b.get_me()
+            await b.send_message(
+                Config.LOG_CHANNEL,
+                f"<b><u>New User Started The Bot :</u></b> \n\n"
+                f"<b>User Mention</b> : {u.mention}\n"
+                f"<b>User ID</b> : `{u.id}`\n"
+                f"<b>First Name</b> : {u.first_name}\n"
+                f"<b>Last Name</b> : {u.last_name}\n"
+                f"<b>User Name</b> : @{u.username}\n"
+                f"<b>User Link</b> : <a href='tg://openmessage?user_id={u.id}'>Click Here</a>\n\n"
+                f"<b>By</b> : @{bot_user.username}"
+            )
+        except Exception as e:
+            print(f"[send_log] Failed to send log to LOG_CHANNEL ({Config.LOG_CHANNEL}): {e}")
 
 def add_prefix_suffix(input_string, prefix='', suffix=''):
     pattern = r'(?P<filename>.*?)(\.\w+)?$'
