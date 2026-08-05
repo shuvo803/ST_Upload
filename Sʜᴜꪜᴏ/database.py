@@ -32,10 +32,15 @@ class Sʜᴜꪜᴏ:
 
     async def add_user(self, b, m):
         u = m.from_user
-        if not await self.is_user_exist(u.id):
+        print(f"[DEBUG] add_user called for user_id={u.id}")
+        exists = await self.is_user_exist(u.id)
+        print(f"[DEBUG] is_user_exist({u.id}) = {exists}")
+        if not exists:
             user = self.new_user(u.id)
-            await self.col.insert_one(user)            
+            await self.col.insert_one(user)
+            print(f"[DEBUG] new user inserted, calling send_log for {u.id}")
             await send_log(b, u)
+            print(f"[DEBUG] send_log finished for {u.id}")
 
     async def is_user_exist(self, id):
         user = await self.col.find_one({'_id': int(id)})
