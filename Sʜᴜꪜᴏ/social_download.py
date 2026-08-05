@@ -34,20 +34,28 @@ def is_fb_or_tiktok(text):
     return bool(text) and bool(FB_TIKTOK_REGEX.match(text.strip()))
 
 
-async def ytdlp_download(url, out_dir):
-    """Runs the blocking yt-dlp download in a thread so it doesn't block the event loop."""
+def _detect_platform(url):
+    """Detect platform from URL."""
+    url_lower = url.lower()
+    if 'tiktok.com' in url_lower:
+        return 'tiktok'
+    elif 'youtube.com' in url_lower or 'youtu.be' in url_lower:
+        return 'youtube'
+    elif 'facebook.com' in url_lower or 'fb.watch' in url_lower:
+        return 'facebook'
+    return None
+
+
+async def ytdlp_download(url, out_dir, platform=None):
+    """Runs the blocking yt-dlp download in a thread so it doesn't block the event loop.
+
+    For TikTok: uses custom headers, extractor args, cookies support, and fallback mechanism
+    to handle videos where download is disabled or restricted.
+    """
     loop = asyncio.get_event_loop()
     result = {}
 
-    def run():
-        ydl_opts = {
-            'outtmpl': f'{out_dir}/%(id)s.%(ext)s',
-            'format': 'bestvideo[filesize<1900M]+bestaudio/best[filesize<1900M]/best',
-            'merge_output_format': 'mp4',
-            'noplaylist': True,
-            'quiet': True,
-            'no_warnings': True,
-        }
+    def _try_download(ydl_opts):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             path = ydl.prepare_filename(info)
@@ -60,6 +68,56 @@ async def ytdlp_download(url, out_dir):
             result['path'] = path
             result['title'] = info.get('title') or 'video'
             result['duration'] = int(info.get('duration') or 0)
+            return True
+
+    def run():
+        base_opts = {
+            'outtmpl': f'{out_dir}/%(id)s.%(ext)s',
+            'format': 'bestvideo[filesize<1900M]+bestaudio/best[filesize<1900M]/best',
+            'merge_output_format': 'mp4',
+            'noplaylist': True,
+            'quiet': True,
+            'no_warnings': True,
+        }
+
+        # ─── টিকটকের জন্য বিশেষ সেটআপ ───
+        if platform == 'tiktok':
+            # প্রথম চেষ্টা: ডেস্কটপ হেডার + ওয়েবপেজ এক্সট্রাকশন
+            tiktok_opts = base_opts.copy()
+            tiktok_opts.update({
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Referer': 'https://www.tiktok.com/',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                },
+                'extractor_args': {
+                    'tiktok': {
+                        'webpage_download': True,
+                    }
+                }
+            })
+            # যদি cookies.txt ফাইল থাকে (লগইন করা অবস্থা), তাহলে সেটা ব্যবহার করবে
+            if os.path.exists('cookies.txt'):
+                tiktok_opts['cookies'] = 'cookies.txt'
+
+            try:
+                return _try_download(tiktok_opts)
+            except Exception as first_err:
+                # দ্বিতীয় চেষ্টা: মোবাইল হেডার + সিম্পল ফরম্যাট
+                try:
+                    fallback_opts = base_opts.copy()
+                    fallback_opts['format'] = 'best[filesize<1900M]/best'
+                    fallback_opts['http_headers'] = {
+                        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+                        'Referer': 'https://m.tiktok.com/',
+                    }
+                    return _try_download(fallback_opts)
+                except Exception as second_err:
+                    raise Exception(f"Primary: {first_err} | Fallback: {second_err}")
+
+        # ইউটিউব/ফেসবুকের জন্য স্বাভাবিক ডাউনলোড
+        return _try_download(base_opts)
 
     await loop.run_in_executor(None, run)
     return result
@@ -156,11 +214,25 @@ async def platform_download_start(client, message):
         quote=True
     )
 
+    # প্ল্যাটফর্ম শনাক্ত করুন
+    platform = _detect_platform(url)
+
     os.makedirs(f"downloads/{user_id}", exist_ok=True)
     try:
-        result = await ytdlp_download(url, f"downloads/{user_id}")
+        result = await ytdlp_download(url, f"downloads/{user_id}", platform=platform)
     except Exception as e:
-        return await status.edit(f"**Error:** `{e}`\n\nMake sure the video is public and not age/region restricted.")
+        error_msg = f"**Error:** `{e}`\n\n"
+        if platform == 'tiktok':
+            error_msg += (
+                "টিকটক ভিডিওটি ডাউনলোড করা যাচ্ছে না। কারণগুলো হতে পারে:\n"
+                "• ভিডিওটি প্রাইভেট বা ডিলিট করা হয়েছে\n"
+                "• টিকটক সার্ভার রিকোয়েস্ট ব্লক করছে\n"
+                "• ভিডিওটি শুধু লগইন করা ব্যবহারকারীদের জন্য\n\n"
+                "💡 **টিপস:** `cookies.txt` ফাইল রুট ফোল্ডারে রাখুন (ঐচ্ছিক)।"
+            )
+        else:
+            error_msg += "Make sure the video is public and not age/region restricted."
+        return await status.edit(error_msg)
 
     path = result.get('path')
     if not path or not os.path.exists(path):
