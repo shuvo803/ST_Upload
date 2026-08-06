@@ -4,6 +4,7 @@ import time
 import random
 import asyncio
 
+import aiohttp
 import yt_dlp
 from pyrogram import Client, filters
 from pyrogram.types import ForceReply, InlineKeyboardButton, InlineKeyboardMarkup
@@ -123,6 +124,96 @@ async def ytdlp_download(url, out_dir, platform=None):
     return result
 
 
+# ---------------------------------------------------------------------------
+# TikTok "photo" posts (slideshow: images + music) fallback.
+#
+# yt-dlp's TikTok extractor only understands /video/<id> URLs. A URL like
+# https://www.tiktok.com/@user/photo/1234567890 is a *slideshow* post, which
+# yt-dlp still does not support (open upstream issue: yt-dlp/yt-dlp#9990).
+# When that happens yt-dlp falls back to its "generic" extractor, which also
+# doesn't recognise the URL, so it raises "ERROR: Unsupported URL: ...".
+# That is exactly the error in your screenshot — the video failed both the
+# primary and fallback attempts because it isn't a video at all, it's a
+# photo/slideshow post.
+#
+# Fix: when that happens for a tiktok URL, ask a public TikTok API (TikWM)
+# for the slideshow's images + background music, download them, and stitch
+# them into an mp4 with ffmpeg so the rest of the bot's pipeline (which only
+# knows how to upload a single video file) can handle it unchanged.
+# ---------------------------------------------------------------------------
+async def tiktok_slideshow_fallback(url, out_dir):
+    """Returns a dict like {'path','title','duration'} for a TikTok photo/slideshow
+    post, or None if this URL isn't a slideshow (so the caller should show the
+    normal error instead)."""
+    api_url = f"https://www.tikwm.com/api/?url={url}&hd=1"
+    timeout = aiohttp.ClientTimeout(total=30)
+    async with aiohttp.ClientSession(timeout=timeout) as session:
+        async with session.get(api_url) as resp:
+            data = await resp.json(content_type=None)
+
+    if not data or data.get('code') != 0:
+        return None
+    info = data.get('data') or {}
+    images = info.get('images')
+    if not images:
+        # Not a slideshow post (or the API couldn't resolve it) — nothing we can do.
+        return None
+
+    title = info.get('title') or 'tiktok_slideshow'
+    music_url = info.get('music')
+
+    os.makedirs(out_dir, exist_ok=True)
+    img_paths = []
+    audio_path = None
+    async with aiohttp.ClientSession(timeout=timeout) as session:
+        for i, img_url in enumerate(images):
+            img_path = f"{out_dir}/slide_{i}.jpg"
+            async with session.get(img_url) as r:
+                with open(img_path, 'wb') as f:
+                    f.write(await r.read())
+            img_paths.append(img_path)
+
+        if music_url:
+            audio_path = f"{out_dir}/slide_audio.mp3"
+            async with session.get(music_url) as r:
+                with open(audio_path, 'wb') as f:
+                    f.write(await r.read())
+
+    seconds_per_image = 3
+    list_file = f"{out_dir}/slides.txt"
+    with open(list_file, 'w') as f:
+        for p in img_paths:
+            f.write(f"file '{os.path.abspath(p)}'\n")
+            f.write(f"duration {seconds_per_image}\n")
+        # ffmpeg's concat demuxer needs the last file repeated without a duration
+        f.write(f"file '{os.path.abspath(img_paths[-1])}'\n")
+
+    out_video = f"{out_dir}/slideshow.mp4"
+    cmd = ['ffmpeg', '-y', '-f', 'concat', '-safe', '0', '-i', list_file]
+    if audio_path:
+        cmd += ['-i', audio_path]
+    cmd += ['-vf', 'scale=720:-2:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2,format=yuv420p']
+    if audio_path:
+        cmd += ['-c:v', 'libx264', '-c:a', 'aac', '-shortest']
+    else:
+        cmd += ['-c:v', 'libx264']
+    cmd.append(out_video)
+
+    process = await asyncio.create_subprocess_exec(
+        *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+    )
+    await process.communicate()
+
+    if not os.path.exists(out_video):
+        return None
+
+    return {
+        'path': out_video,
+        'title': title,
+        'duration': seconds_per_image * len(img_paths),
+    }
+
+
 async def process_and_upload(bot, chat_id, user_id, file_path, duration, ms, close_button, first_name):
     """Shared final step: metadata, thumbnail, caption, upload as video, backup, stats."""
     if not os.path.isdir("Metadata"):
@@ -221,18 +312,29 @@ async def platform_download_start(client, message):
     try:
         result = await ytdlp_download(url, f"downloads/{user_id}", platform=platform)
     except Exception as e:
-        error_msg = f"**Error:** `{e}`\n\n"
+        # টিকটক "photo"/স্লাইডশো পোস্ট (ছবি + মিউজিক) হলে yt-dlp সেটা সাপোর্ট করে না,
+        # তাই "Unsupported URL" এরর দেয়। এই ক্ষেত্রে TikWM API দিয়ে আলাদাভাবে
+        # ছবি + অডিও নামিয়ে ffmpeg দিয়ে একটা ভিডিও বানিয়ে নেওয়ার চেষ্টা করি।
         if platform == 'tiktok':
-            error_msg += (
-                "টিকটক ভিডিওটি ডাউনলোড করা যাচ্ছে না। কারণগুলো হতে পারে:\n"
-                "• ভিডিওটি প্রাইভেট বা ডিলিট করা হয়েছে\n"
-                "• টিকটক সার্ভার রিকোয়েস্ট ব্লক করছে\n"
-                "• ভিডিওটি শুধু লগইন করা ব্যবহারকারীদের জন্য\n\n"
-                "💡 **টিপস:** `cookies.txt` ফাইল রুট ফোল্ডারে রাখুন (ঐচ্ছিক)।"
-            )
+            try:
+                slideshow = await tiktok_slideshow_fallback(url, f"downloads/{user_id}")
+            except Exception:
+                slideshow = None
+            if slideshow:
+                result = slideshow
+            else:
+                error_msg = (
+                    f"**Error:** `{e}`\n\n"
+                    "টিকটক ভিডিওটি ডাউনলোড করা যাচ্ছে না। কারণগুলো হতে পারে:\n"
+                    "• ভিডিওটি প্রাইভেট বা ডিলিট করা হয়েছে\n"
+                    "• টিকটক সার্ভার রিকোয়েস্ট ব্লক করছে\n"
+                    "• ভিডিওটি শুধু লগইন করা ব্যবহারকারীদের জন্য\n\n"
+                    "💡 **টিপস:** `cookies.txt` ফাইল রুট ফোল্ডারে রাখুন (ঐচ্ছিক)।"
+                )
+                return await status.edit(error_msg)
         else:
-            error_msg += "Make sure the video is public and not age/region restricted."
-        return await status.edit(error_msg)
+            error_msg = f"**Error:** `{e}`\n\nMake sure the video is public and not age/region restricted."
+            return await status.edit(error_msg)
 
     path = result.get('path')
     if not path or not os.path.exists(path):
