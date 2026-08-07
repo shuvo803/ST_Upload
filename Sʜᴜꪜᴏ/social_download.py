@@ -80,6 +80,11 @@ async def ytdlp_download(url, out_dir, platform=None):
             'quiet': True,
             'no_warnings': True,
         }
+        # ইউটিউব এখন সার্ভার/ডেটাসেন্টার আইপি থেকে আসা রিকোয়েস্ট প্রায়ই ব্লক করে দিয়ে
+        # "Sign in to confirm you're not a bot" এরর দেয়। লগইন করা অবস্থার কুকি
+        # (cookies.txt, Netscape ফরম্যাটে) দিলে এই এরর সাধারণত চলে যায়।
+        if os.path.exists('cookies.txt'):
+            base_opts['cookiefile'] = 'cookies.txt'
 
         # ─── টিকটকের জন্য বিশেষ সেটআপ ───
         if platform == 'tiktok':
@@ -100,7 +105,7 @@ async def ytdlp_download(url, out_dir, platform=None):
             })
             # যদি cookies.txt ফাইল থাকে (লগইন করা অবস্থা), তাহলে সেটা ব্যবহার করবে
             if os.path.exists('cookies.txt'):
-                tiktok_opts['cookies'] = 'cookies.txt'
+                tiktok_opts['cookiefile'] = 'cookies.txt'
 
             try:
                 return _try_download(tiktok_opts)
@@ -333,7 +338,13 @@ async def platform_download_start(client, message):
                 )
                 return await status.edit(error_msg)
         else:
-            error_msg = f"**Error:** `{e}`\n\nMake sure the video is public and not age/region restricted."
+            error_msg = (
+                f"**Error:** `{e}`\n\n"
+                "Make sure the video is public and not age/region restricted.\n\n"
+                "যদি এরর-এ 'Sign in to confirm you're not a bot' লেখা থাকে, "
+                "তাহলে YouTube থেকে লগইন করা অবস্থায় এক্সপোর্ট করা `cookies.txt` "
+                "ফাইল রুট ফোল্ডারে রাখুন — এতে এই ব্লক সাধারণত চলে যায়।"
+            )
             return await status.edit(error_msg)
 
     path = result.get('path')
