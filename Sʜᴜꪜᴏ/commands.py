@@ -67,9 +67,6 @@ async def addthumbs(client,message):
     rd=await message.reply_text("⏳ **𝖯𝗅𝖾𝖺𝗌𝖾 𝖶𝖺𝗂𝗍...**",quote=True)
     await tb.set_thumbnail(message.from_user.id,file_id=message.photo.file_id)
     await rd.edit("✅ **𝖳𝗁𝗎𝗆𝖻𝗇𝖺𝗂𝗅 𝖲𝖺𝗏𝖾𝖽 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒**")
-    await asyncio.sleep(30)
-    await message.delete()
-    await rd.delete()
 
 @Client.on_message(filters.private & filters.command('setprefix'))
 async def add_prefix(client,message):
