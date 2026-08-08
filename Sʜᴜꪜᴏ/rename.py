@@ -52,8 +52,15 @@ async def refunc(client,message):
     if (reply_message.reply_markup) and isinstance(reply_message.reply_markup,ForceReply):
         msg=await client.get_messages(message.chat.id,reply_message.id)
         file=msg.reply_to_message
-        if not file or not file.media:
-            return  # not a rename prompt (e.g. the metadata prompt) — let its own handler deal with it
+        # আগে এখানে শুধু `not file.media` চেক করা হতো, কিন্তু URL/সোশ্যাল-মিডিয়া
+        # ডাউনলোড ফ্লো-তে ForceReply prompt একটা লিংক-যুক্ত টেক্সট মেসেজকে রিপ্লাই
+        # করে, আর সেই টেক্সট মেসেজেরও (লিংক প্রিভিউ থাকলে) media = WEB_PAGE হয়ে
+        # যায় — যেটা truthy। ফলে এই হ্যান্ডলারটা ভুলভাবে ট্রিগার হয়ে
+        # url_upload.py/social_download.py-এর পাশাপাশি ডুপ্লিকেট
+        # "Select The Output File Type" মেসেজ পাঠাতো। তাই এখন শুধু আসল
+        # ভিডিও/ডকুমেন্ট ফাইলের জন্যই এগোবে।
+        if not file or file.media not in (MessageMediaType.VIDEO, MessageMediaType.DOCUMENT):
+            return  # not a rename prompt (e.g. the URL/social-download or metadata prompt) — let its own handler deal with it
         new_name=message.text
         await message.delete()
         media=getattr(file,file.media.value)
