@@ -147,9 +147,16 @@ async def ytdlp_download(url, out_dir, platform=None):
 # knows how to upload a single video file) can handle it unchanged.
 # ---------------------------------------------------------------------------
 async def tiktok_slideshow_fallback(url, out_dir):
-    """Returns a dict like {'path','title','duration'} for a TikTok photo/slideshow
-    post, or None if this URL isn't a slideshow (so the caller should show the
-    normal error instead)."""
+    """Fallback for TikTok links that yt-dlp's own scraper fails on — either
+    because it's a /photo/ slideshow post (never supported by yt-dlp), or
+    because TikTok blocked/changed the page yt-dlp scrapes (e.g. the
+    "Unable to extract universal data for rehydration" error, a known open
+    yt-dlp bug: https://github.com/yt-dlp/yt-dlp/issues/16199 — TikTok simply
+    stops embedding its data JSON in the page for some requests).
+    Uses the TikWM public API, which fetches TikTok's own mobile API instead
+    of scraping the webpage, so it isn't affected by either problem.
+    Returns a dict like {'path','title','duration'}, or None if TikWM also
+    couldn't resolve this URL (so the caller should show the normal error)."""
     api_url = f"https://www.tikwm.com/api/?url={url}&hd=1"
     timeout = aiohttp.ClientTimeout(total=30)
     async with aiohttp.ClientSession(timeout=timeout) as session:
@@ -160,11 +167,31 @@ async def tiktok_slideshow_fallback(url, out_dir):
         return None
     info = data.get('data') or {}
     images = info.get('images')
-    if not images:
-        # Not a slideshow post (or the API couldn't resolve it) — nothing we can do.
-        return None
+    title = info.get('title') or 'tiktok_video'
 
-    title = info.get('title') or 'tiktok_slideshow'
+    os.makedirs(out_dir, exist_ok=True)
+
+    if not images:
+        # Not a slideshow — try it as a normal video (this is what fixes the
+        # "Unable to extract universal data for rehydration" case).
+        video_url = info.get('play') or info.get('hdplay') or info.get('wmplay')
+        if not video_url:
+            return None
+        out_video = f"{out_dir}/tikwm_video.mp4"
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            async with session.get(video_url) as r:
+                if r.status != 200:
+                    return None
+                with open(out_video, 'wb') as f:
+                    f.write(await r.read())
+        if not os.path.exists(out_video) or os.path.getsize(out_video) == 0:
+            return None
+        return {
+            'path': out_video,
+            'title': title,
+            'duration': info.get('duration') or 0,
+        }
+
     music_url = info.get('music')
 
     os.makedirs(out_dir, exist_ok=True)
