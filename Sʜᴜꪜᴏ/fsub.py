@@ -2,7 +2,7 @@ import logging
 import datetime
 from motor.motor_asyncio import AsyncIOMotorClient
 from pyrogram import Client, filters, StopPropagation, enums
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, ChatJoinRequest, ChatMemberUpdated
+from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, ChatJoinRequest, ChatMemberUpdated, CallbackQuery
 from pyrogram.errors import UserNotParticipant, ChatAdminRequired
 from config import Config
 
@@ -195,4 +195,25 @@ async def global_fsub_checker(client: Client, message: Message):
     if not Config.IS_FSUB:
         return
     if not await get_fsub(client, message):
+        raise StopPropagation
+
+
+# বাটন ক্লিক (Document/Video সিলেকশন, রিনেম কনফার্মেশন ইত্যাদি) দিয়ে যেন কেউ
+# চ্যানেল থেকে বের হয়ে যাওয়ার পরেও কাজ চালিয়ে যেতে না পারে, তাই মেসেজের মতো
+# callback query-গুলোও একই fsub চেক দিয়ে আটকে দেওয়া হচ্ছে।
+@Client.on_callback_query(group=-10)
+async def global_fsub_callback_checker(client: Client, callback_query: CallbackQuery):
+    if not Config.IS_FSUB:
+        return
+    user_id = callback_query.from_user.id
+    if user_id == Config.ADMIN:
+        return
+    if not await check_all_channels_joined(client, user_id):
+        try:
+            await callback_query.answer(
+                "🔒 You must join all required channels first! Send /start to see them.",
+                show_alert=True
+            )
+        except Exception:
+            pass
         raise StopPropagation
